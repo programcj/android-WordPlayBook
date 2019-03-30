@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp"
+    android:layout_marginBottom="4dp"
+    android:layout_marginTop="4dp"
+
+    android:descendantFocusability="blocksDescendants">
+
+
+    <!--/*android:background="@android:drawable/radiobutton_off_background" */-->
+    <Button
+        android:id="@+id/buttonPlay"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+
+        android:clickable="true"
+        android:focusable="false"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/textWord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="4dp"
+        android:layout_marginStart="4dp"
+        android:layout_toEndOf="@+id/buttonPlay"
+        android:layout_toRightOf="@+id/buttonPlay"
+        android:text="Hello" />
+
+    <TextView
+        android:id="@+id/textWordContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_alignLeft="@+id/textWord"
+        android:layout_below="@+id/textWord"
+        android:paddingTop="6dp"
+        android:text="提示"
+        android:textSize="8sp" />
+
+
+</RelativeLayout>
