@@ -262,9 +262,9 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         }
-        if (id == R.id.action_test) {
-//            CJApp.getInstance().onPlayWord("pthread");
-//            CJApp.getInstance().onPlayWord("switch");
+        if (id == R.id.action_errlog) {
+
+            startActivity(new Intent(this,ErrlogActivity.class));
 
             return true;
         }

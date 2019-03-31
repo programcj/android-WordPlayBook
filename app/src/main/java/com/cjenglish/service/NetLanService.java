@@ -33,8 +33,9 @@ public class NetLanService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        String msg = intent.getStringExtra("data");
+        String msg = null;
+        if (intent != null)
+            msg = intent.getStringExtra("data");
 //        1):START_STICKY： 如果service进程被kill掉，保留service的状态为开始状态，但不保留递送的intent对象。
 //                  随后系统会尝试重新创建service，由 于服务状态为开始状态，
 //                  所以创建服务后一定会调用onStartCommand(Intent,int,int)方法。
@@ -48,7 +49,7 @@ public class NetLanService extends Service {
         if (thread == null) {
             thread = new Thread(runnable);
             thread.start();
-            Log.i("NetLanService","start");
+            Log.i("NetLanService", "start");
         }
         return START_STICKY;
     }
@@ -56,7 +57,7 @@ public class NetLanService extends Service {
     static Gson gson = new GsonBuilder().serializeNulls()
             .setPrettyPrinting()
             .create();
-    static int port=6589;
+    static int port = 6589;
 
     public static class UDPInfo {
         public String wordClass;
@@ -66,13 +67,13 @@ public class NetLanService extends Service {
 
     Thread thread = null;
 
-    public static String  testGson(){
-        UDPInfo info=new UDPInfo();
+    public static String testGson() {
+        UDPInfo info = new UDPInfo();
 
-        info.wordClass="c";
-        info.wordName="unsigned int";
-        info.wordContext="...";
-        return gson.toJson(info)+port;
+        info.wordClass = "c";
+        info.wordName = "unsigned int";
+        info.wordContext = "...";
+        return gson.toJson(info) + port;
     }
 
     Runnable runnable = new Runnable() {
@@ -87,7 +88,7 @@ public class NetLanService extends Service {
                 e.printStackTrace();
             }
 
-            if(serverSocket==null)
+            if (serverSocket == null)
                 return;
 
             try {
@@ -96,7 +97,7 @@ public class NetLanService extends Service {
                 e.printStackTrace();
             }
 
-            while(!Thread.currentThread().isInterrupted()){
+            while (!Thread.currentThread().isInterrupted()) {
 
                 //2
                 byte[] arr = new byte[1024];
@@ -106,14 +107,14 @@ public class NetLanService extends Service {
                 try {
                     serverSocket.receive(packet);
                     byte[] value = packet.getData(); //从包中将数据取出
-                    String json=new String(value);
+                    String json = new String(value);
                     UDPInfo udpInfo = gson.fromJson(json, UDPInfo.class);
-                    if(udpInfo!=null){
+                    if (udpInfo != null) {
                         WordTitle wordTitle = CJApp.getInstance().getWordTitleDao().queryBuilder()
                                 .where(WordItemDao.Properties.Name.eq(udpInfo.wordClass)).unique();
 
-                        if(wordTitle==null){
-                            wordTitle=new WordTitle();
+                        if (wordTitle == null) {
+                            wordTitle = new WordTitle();
                             wordTitle.setName(udpInfo.wordClass);
                             wordTitle.setTimeCreate(System.currentTimeMillis());
                             CJApp.getInstance().getWordTitleDao().insert(wordTitle);
@@ -122,14 +123,14 @@ public class NetLanService extends Service {
                                     .where(WordItemDao.Properties.Name.eq(udpInfo.wordClass)).unique();
                         }
 
-                        if(wordTitle!=null){
+                        if (wordTitle != null) {
 
                             List<WordItem> wordItems = CJApp.getInstance().getWordItemDao().queryBuilder()
                                     .where(WordItemDao.Properties.Pid.eq("" + wordTitle.getId()))
                                     .where(WordItemDao.Properties.Name.eq(udpInfo.wordName))
                                     .list();
-                            if(wordItems.size()==0){
-                                WordItem item=new WordItem();
+                            if (wordItems.size() == 0) {
+                                WordItem item = new WordItem();
                                 item.setPid(wordTitle.getId());
                                 item.setName(udpInfo.wordName);
                                 item.setContent(udpInfo.wordContext);

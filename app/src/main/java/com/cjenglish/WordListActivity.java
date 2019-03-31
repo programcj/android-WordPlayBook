@@ -236,21 +236,23 @@ public class WordListActivity extends AppCompatActivity {
                 return true;
             }
         };
+        View.OnClickListener playOnclick = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyViewHolder holder = (MyViewHolder) v.getTag();
+                int position = holder.getAdapterPosition();
 
+                if (onPlayCallback != null)
+                    onPlayCallback.onPlayOnClick(position);
+            }
+        };
 
         @Override
         public int getItemCount() {
             return listWords.size();
         }
 
-        View.OnClickListener playOnclick = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int position = (int) v.getTag();
-                if (onPlayCallback != null)
-                    onPlayCallback.onPlayOnClick(position);
-            }
-        };
+
 
         public WordItem getItem(int position) {
             return listWords.get(position);

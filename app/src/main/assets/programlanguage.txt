@@ -1,0 +1,97 @@
+<language>:c
+auto
+char
+int
+short
+long
+float
+double
+signed
+unsigned
+void
+static
+volatile
+register
+const
+extern
+struct
+union
+enum
+typedef
+if
+else
+for
+do
+while
+switch
+cast
+default
+break
+continue
+goto
+return
+sizeof
+inline
+restrict
+#define
+#ifdef else endif
+#program
+#error
+#line
+__tdcall
+__decl #
+__stdcall
+__cdecl
+__fastcall
+__thiscall
+__attribute__
+ANSI c
+GNU c
+__FUNCTION__
+__cplusplus
+##__VA_ARGS__
+
+<language>:c plus plus
+bool true false
+asm
+new delete
+using
+namespace
+class
+private
+protected
+operator
+virtual
+friend
+this
+template
+try catch throw
+static_cast
+explicit
+export
+const_cast
+thread_local
+static_assert
+_STL_bootst
+
+<language>:java
+boolean
+final
+abstract
+assert
+import
+package
+default
+extends
+implements
+instanceof
+interface
+native
+super
+synchronized
+throw throws
+try catch finnaly
+Exception
+Throwable
+NullPointerException
+
