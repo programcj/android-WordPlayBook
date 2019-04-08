@@ -17,6 +17,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,7 +34,12 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".ErrlogActivity"></activity>
+        <activity android:name=".ErrlogActivity" />
+
+        <service
+            android:name=".service.WordPlayService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

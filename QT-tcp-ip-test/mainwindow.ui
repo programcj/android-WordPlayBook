@@ -6,12 +6,58 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>866</width>
-    <height>523</height>
+    <width>956</width>
+    <height>650</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QLineEdit { background: yellow }
+QListWidget {
+background-color: rgb(243, 211, 255);
+color: rgb(61, 32, 255);
+font-size: 24pt ;
+}
+QPushButton {
+    font-size: 24pt ;
+	color: rgb(26, 9, 21);
+    border: 2px solid #8f8f91;
+    border-radius: 6px;
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #f6f7fa, stop: 1 #dadbde);
+    min-width: 80px;
+}
+
+QPushButton:pressed {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #dadbde, stop: 1 #f6f7fa);
+}
+
+QPushButton:flat {
+    border: none;
+}
+
+QPushButton:default {
+    border-color: navy;
+}
+
+QTableWidget {  
+	background-color: rgb(37, 37, 39);
+	font-size: 18pt ;
+ 	
+	color: rgb(115, 107, 255);
+}
+QLineEdit {	
+	
+	background-color: rgb(228, 228, 228);
+    border: 1px solid gray;
+    border-radius: 3px;
+    padding: 0 8px;
+    font-size: 18pt ;
+	color: rgb(6, 4, 5);
+}</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -38,15 +84,15 @@
       <widget class="QPushButton" name="btSearch">
        <property name="geometry">
         <rect>
-         <x>0</x>
+         <x>10</x>
          <y>10</y>
-         <width>191</width>
+         <width>171</width>
          <height>61</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>84</width>
          <height>50</height>
         </size>
        </property>
@@ -65,13 +111,11 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>14</pointsize>
+         <pointsize>24</pointsize>
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(243, 211, 255);
-color: rgb(61, 32, 255);
-font: 14pt &quot;.SF NS Text&quot;;</string>
+        <string notr="true"/>
        </property>
        <item>
         <property name="text">
@@ -101,9 +145,7 @@ font: 14pt &quot;.SF NS Text&quot;;</string>
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(243, 211, 255);
-color: rgb(61, 32, 255);
-font: 22pt &quot;.SF NS Text&quot;;</string>
+       <string notr="true"/>
       </property>
       <item>
        <property name="text">
@@ -118,62 +160,103 @@ font: 22pt &quot;.SF NS Text&quot;;</string>
      </widget>
     </item>
     <item>
-     <widget class="QTableWidget" name="tableWidgetWord">
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(36, 4, 75);
-font: 23pt &quot;.SF NS Text&quot;;</string>
+     <widget class="QFrame" name="frame_2">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
       </property>
-      <attribute name="verticalHeaderVisible">
-       <bool>false</bool>
-      </attribute>
-      <attribute name="verticalHeaderHighlightSections">
-       <bool>true</bool>
-      </attribute>
-      <row>
-       <property name="text">
-        <string>新建行</string>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QTableWidget" name="tableWidgetWord">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>524</width>
+         <height>501</height>
+        </rect>
        </property>
-      </row>
-      <row>
-       <property name="text">
-        <string>新建行</string>
+       <property name="styleSheet">
+        <string notr="true"/>
        </property>
-      </row>
-      <row>
-       <property name="text">
-        <string>新建行</string>
+       <attribute name="verticalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="verticalHeaderHighlightSections">
+        <bool>true</bool>
+       </attribute>
+       <row>
+        <property name="text">
+         <string>新建行</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>新建行</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>新建行</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>新建行</string>
+        </property>
+       </row>
+       <column>
+        <property name="text">
+         <string>1</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>2</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>3</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>4</string>
+        </property>
+       </column>
+       <item row="0" column="0">
+        <property name="text">
+         <string>234</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QPushButton" name="btAddWordItem">
+       <property name="geometry">
+        <rect>
+         <x>440</x>
+         <y>10</y>
+         <width>91</width>
+         <height>41</height>
+        </rect>
        </property>
-      </row>
-      <row>
        <property name="text">
-        <string>新建行</string>
+        <string>Add</string>
        </property>
-      </row>
-      <column>
+      </widget>
+      <widget class="QLineEdit" name="lineEditWord">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>381</width>
+         <height>41</height>
+        </rect>
+       </property>
        <property name="text">
-        <string>1</string>
+        <string>aa</string>
        </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>2</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>3</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>4</string>
-       </property>
-      </column>
-      <item row="0" column="0">
-       <property name="text">
-        <string>234</string>
-       </property>
-      </item>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -183,7 +266,7 @@ font: 23pt &quot;.SF NS Text&quot;;</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>866</width>
+     <width>956</width>
      <height>22</height>
     </rect>
    </property>

@@ -29,6 +29,8 @@ private slots:
     void on_listWidgetAllTitle_itemDoubleClicked(QListWidgetItem *item);
     void onGetAllTitleWordItemRes(QString ip, CJUDPProto::UDPInfo & info);
 
+    void on_btAddWordItem_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

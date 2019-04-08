@@ -1,9 +1,16 @@
 package com.cjenglish;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
@@ -30,6 +37,8 @@ import android.widget.Toast;
 
 import com.cjenglish.db.WordTitle;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,6 +47,41 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static class NotificationsUtils {
+
+        private static final String CHECK_OP_NO_THROW = "checkOpNoThrow";
+        private static final String OP_POST_NOTIFICATION = "OP_POST_NOTIFICATION";
+
+        @SuppressLint("NewApi")
+        public static boolean isNotificationEnabled(Context context) {
+
+            AppOpsManager mAppOps =
+                    (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+
+            ApplicationInfo appInfo = context.getApplicationInfo();
+            String pkg = context.getApplicationContext().getPackageName();
+            int uid = appInfo.uid;
+            Class appOpsClass = null;
+
+        /* Context.APP_OPS_MANAGER */
+            try {
+                appOpsClass = Class.forName(AppOpsManager.class.getName());
+
+                Method checkOpNoThrowMethod =
+                        appOpsClass.getMethod(CHECK_OP_NO_THROW,
+                                Integer.TYPE, Integer.TYPE, String.class);
+
+                Field opPostNotificationValue = appOpsClass.getDeclaredField(OP_POST_NOTIFICATION);
+                int value = (Integer) opPostNotificationValue.get(Integer.class);
+
+                return ((Integer) checkOpNoThrowMethod.invoke(mAppOps, value, uid, pkg) ==
+                        AppOpsManager.MODE_ALLOWED);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+    }
 
     public static class WordTitleAdapter extends ArrayAdapter<WordTitle> {
         private int mResourceId;
@@ -51,12 +95,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            TextView  view= null;
+            TextView view = null;
             if (convertView != null) {
-                view=(TextView)convertView;
-            }else {
+                view = (TextView) convertView;
+            } else {
                 convertView = this.mInflater.inflate(mResourceId, null);
-                view=(TextView)convertView;
+                view = (TextView) convertView;
             }
             WordTitle user = getItem(position);
             view.setText(user.getName());
@@ -128,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
     WordTitleAdapter listViewAdapter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,6 +180,9 @@ public class MainActivity extends AppCompatActivity {
 
         // 通过注解绑定控件
         ButterKnife.bind(this);
+
+
+        tttttttttt();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -219,6 +267,41 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void tttttttttt() {
+        if (!NotificationsUtils.isNotificationEnabled(this)) {
+            final AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setMessage("检测到您没有打开通知权限")
+                    .setPositiveButton("", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent localIntent = new Intent();
+                            localIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            if (Build.VERSION.SDK_INT >= 9) {
+                                localIntent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
+                                localIntent.setData(Uri.fromParts("package", MainActivity.this.getPackageName(), null));
+                            } else if (Build.VERSION.SDK_INT <= 8) {
+                                localIntent.setAction(Intent.ACTION_VIEW);
+
+                                localIntent.setClassName("com.android.settings",
+                                        "com.android.settings.InstalledAppDetails");
+
+                                localIntent.putExtra("com.android.settings.ApplicationPkgName",
+                                        MainActivity.this.getPackageName());
+                            }
+                            startActivity(localIntent);
+                        }
+                    })
+                    .show();
+
+        }
+    }
+
     void uiUpdateListView() {
         List<WordTitle> list = CJApp.getInstance().getWordTitleDao().queryBuilder().list();
 
@@ -264,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (id == R.id.action_errlog) {
 
-            startActivity(new Intent(this,ErrlogActivity.class));
+            startActivity(new Intent(this, ErrlogActivity.class));
 
             return true;
         }

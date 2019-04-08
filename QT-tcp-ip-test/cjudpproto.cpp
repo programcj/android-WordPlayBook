@@ -146,6 +146,20 @@ void CJUDPProto::sendGetAllTitleWordItem(const QString &ip, const QString &title
     qDebug()<<"send broad ->"<<address << ":" <<title<<","<<data;
 }
 
+void CJUDPProto::sendAddWordItemReq(const QString &ip, const QString &title, const QString &wordName)
+{
+    CJUDPProto::UDPInfo info;
+
+    info.wordTitle.name=title;
+    info.wordItem.name=wordName;
+    QString data=CJUDPProto::buildUdpInfo("addWordItemReq",info);
+    QHostAddress address;
+    address.setAddress(IPV4StringToInteger(ip));
+    tUdpSocket->writeDatagram(data.toLocal8Bit(),address,PORT_DEVICE);
+
+    qDebug()<<"send broad ->"<<address << ":" <<title<<","<<data;
+}
+
 void CJUDPProto::onReceive()
 {
     QByteArray ba;

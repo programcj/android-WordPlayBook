@@ -12,6 +12,9 @@ public:
 
     class WordTitle {
     public:
+        WordTitle(){
+            id=0;
+        }
         int id;
         QString name;
         int seqNumber;
@@ -20,6 +23,10 @@ public:
 
     class WordItem {
     public:
+        WordItem(){
+            id=0;
+            pid=0;
+        }
         int id;
         int pid;
         QString name;
@@ -45,6 +52,9 @@ public:
     void sendGetAllTitle(const QString &ip);
 
     void sendGetAllTitleWordItem(const QString &ip,const QString &title);
+
+    void sendAddWordItemReq(const QString &ip, const QString &title, const QString &wordName);
+
 
 signals:
     void sigDeviceBroadSearchRes(QString ip, quint16 port);

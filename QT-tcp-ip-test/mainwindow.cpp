@@ -89,3 +89,16 @@ void MainWindow::onGetAllTitleWordItemRes(QString ip, CJUDPProto::UDPInfo &info)
 }
 
 
+
+void MainWindow::on_btAddWordItem_clicked()
+{
+    QListWidgetItem *itemTitle=ui->listAllDevWidget->currentItem();
+
+    QString txtIp=itemTitle->text();
+    int end=txtIp.indexOf(':');
+    QString ip=txtIp.mid(0,end);
+
+    QString title=ui->listWidgetAllTitle->currentItem()->text();
+
+    CJApp::getInstance().cJUDPProto->sendAddWordItemReq(ip, title,ui->lineEditWord->text());
+}

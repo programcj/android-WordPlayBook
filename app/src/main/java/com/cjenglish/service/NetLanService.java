@@ -7,6 +7,7 @@ import android.support.annotation.IntDef;
 import android.util.Log;
 
 import com.cj.db.greendao.WordItemDao;
+import com.cj.db.greendao.WordTitleDao;
 import com.cjenglish.CJApp;
 import com.cjenglish.db.WordItem;
 import com.cjenglish.db.WordTitle;
@@ -18,6 +19,7 @@ import org.greenrobot.greendao.query.QueryBuilder;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.List;
 
@@ -54,34 +56,133 @@ public class NetLanService extends Service {
         return START_STICKY;
     }
 
-    static Gson gson = new GsonBuilder().serializeNulls()
-            .setPrettyPrinting()
-            .create();
+    static Gson gson =new GsonBuilder().create();
+
+    //static Gson gson = new GsonBuilder().serializeNulls().create();
     static int port = 6589;
 
-    public static class UDPInfo {
-        public String wordClass;
-        public String wordName;
-        public String wordContext;
+//    public static class UDPInfo {
+//        public String type;
+//        public Long titleId;
+//        public String wordClass;
+//        public Long wordId;
+//        public String wordName;
+//        public String wordContext;
+//    }
+
+    public static class UDPInfo{
+        public String type;
+        public WordTitle wordTitle;
+        public WordItem wordItem;
+
+        public UDPInfo(){
+            wordTitle=new WordTitle();
+            wordItem=new WordItem();
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public WordTitle getWordTitle() {
+            return wordTitle;
+        }
+
+        public void setWordTitle(WordTitle wordTitle) {
+            this.wordTitle = wordTitle;
+        }
+
+        public WordItem getWordItem() {
+            return wordItem;
+        }
+
+        public void setWordItem(WordItem wordItem) {
+            this.wordItem = wordItem;
+        }
     }
 
     Thread thread = null;
 
     public static String testGson() {
         UDPInfo info = new UDPInfo();
-
-        info.wordClass = "c";
-        info.wordName = "unsigned int";
-        info.wordContext = "...";
         return gson.toJson(info) + port;
     }
 
+
+    WordItem insert(UDPInfo udpInfo) {
+        WordTitle wordTitle = CJApp.getInstance().getWordTitleDao().queryBuilder()
+                .where(WordTitleDao.Properties.Name.eq(udpInfo.wordTitle.getName())).unique();
+
+        if (wordTitle == null) {
+            wordTitle = new WordTitle();
+            wordTitle.setName(udpInfo.wordTitle.getName());
+            wordTitle.setTimeCreate(System.currentTimeMillis());
+            CJApp.getInstance().getWordTitleDao().insert(wordTitle);
+
+            wordTitle = CJApp.getInstance().getWordTitleDao().queryBuilder()
+                    .where(WordItemDao.Properties.Name.eq(udpInfo.wordTitle.getName())).unique();
+        }
+
+        if (wordTitle != null) {
+
+            List<WordItem> wordItems = CJApp.getInstance().getWordItemDao().queryBuilder()
+                    .where(WordItemDao.Properties.Pid.eq("" + wordTitle.getId()))
+                    .where(WordItemDao.Properties.Name.eq(udpInfo.wordItem.getName()))
+                    .list();
+
+            long count=CJApp.getInstance().getWordItemDao().queryBuilder()
+                    .where(WordItemDao.Properties.Pid.eq("" + wordTitle.getId())).count();
+
+            if (wordItems.size() == 0) {
+                WordItem item = new WordItem();
+                item.setPid(wordTitle.getId());
+                item.setName(udpInfo.wordItem.getName());
+                if(udpInfo.wordItem.getContent()!=null)
+                    item.setContent(udpInfo.wordItem.getContent());
+                else
+                    item.setContent("");
+                item.setCreateTime(System.currentTimeMillis());
+
+
+                item.setSortline(count);
+
+                CJApp.getInstance().getWordItemDao().insert(item);
+
+                item=CJApp.getInstance().getWordItemDao().queryBuilder().where(WordItemDao.Properties.CreateTime.eq(""+item.getCreateTime())).unique();
+
+                return item;
+            } else {
+                return wordItems.get(0);
+            }
+        }
+        return null;
+    }
+
     Runnable runnable = new Runnable() {
+        DatagramSocket serverSocket = null;
+
+        void udpSend(UDPInfo info, InetAddress address, int port) throws IOException {
+
+            String str = gson.toJson(info);
+            byte[] bytes = str.getBytes();
+
+            DatagramPacket resPack = new DatagramPacket(bytes, bytes.length,
+                    address, port);
+
+            Log.d("JSON", "send->" + str);
+            serverSocket.send(resPack);
+        }
+
+
         @Override
         public void run() {
-
+            serverSocket = null;
             //1
-            DatagramSocket serverSocket = null;
+
             try {
                 serverSocket = new DatagramSocket(6589);
             } catch (SocketException e) {
@@ -106,37 +207,59 @@ public class NetLanService extends Service {
                 //3 当程序运行起来之后,receive方法会一直处于监听状态
                 try {
                     serverSocket.receive(packet);
-                    byte[] value = packet.getData(); //从包中将数据取出
-                    String json = new String(value);
+
+                    String json = new String(arr, 0, packet.getLength());
+
+                    Log.d("JSON", "" + json);
                     UDPInfo udpInfo = gson.fromJson(json, UDPInfo.class);
-                    if (udpInfo != null) {
-                        WordTitle wordTitle = CJApp.getInstance().getWordTitleDao().queryBuilder()
-                                .where(WordItemDao.Properties.Name.eq(udpInfo.wordClass)).unique();
+                    if (udpInfo != null && udpInfo.type != null) {
 
-                        if (wordTitle == null) {
-                            wordTitle = new WordTitle();
-                            wordTitle.setName(udpInfo.wordClass);
-                            wordTitle.setTimeCreate(System.currentTimeMillis());
-                            CJApp.getInstance().getWordTitleDao().insert(wordTitle);
+                        if (udpInfo.type.compareToIgnoreCase("deviceBroadSearch") == 0) {
+                            udpInfo.type = "deviceBroadSearchRes";
 
-                            wordTitle = CJApp.getInstance().getWordTitleDao().queryBuilder()
-                                    .where(WordItemDao.Properties.Name.eq(udpInfo.wordClass)).unique();
+                            udpSend(udpInfo, packet.getAddress(), packet.getPort());
+                        }
+                        if (udpInfo.type.compareToIgnoreCase("getAllTitleReq") == 0) {
+
+                            List<WordTitle> list = CJApp.getInstance().getWordTitleDao().queryBuilder().orderAsc(WordTitleDao.Properties.SeqNumber).list();
+                            for (WordTitle item : list
+                                    ) {
+                                UDPInfo info = new UDPInfo();
+                                info.setWordTitle(item);
+                                info.type = "getAllTitleRes";
+                                udpSend(info, packet.getAddress(), packet.getPort());
+                            }
                         }
 
-                        if (wordTitle != null) {
+                        if (udpInfo.type.compareToIgnoreCase("getAllTitleWordItemReq") == 0) {
 
-                            List<WordItem> wordItems = CJApp.getInstance().getWordItemDao().queryBuilder()
-                                    .where(WordItemDao.Properties.Pid.eq("" + wordTitle.getId()))
-                                    .where(WordItemDao.Properties.Name.eq(udpInfo.wordName))
-                                    .list();
-                            if (wordItems.size() == 0) {
-                                WordItem item = new WordItem();
-                                item.setPid(wordTitle.getId());
-                                item.setName(udpInfo.wordName);
-                                item.setContent(udpInfo.wordContext);
-                                item.setCreateTime(System.currentTimeMillis());
-                                CJApp.getInstance().getWordItemDao().insert(item);
+                            if (udpInfo.getWordTitle() != null) {
+
+                                WordTitle wordTitle = CJApp.getInstance().getWordTitleDao().queryBuilder()
+                                        .where(WordTitleDao.Properties.Name.eq("" + udpInfo.wordTitle.getName())).unique();
+
+                                if (wordTitle != null) {
+                                    List<WordItem> list = CJApp.getInstance().getWordItemDao().queryBuilder()
+                                            .where(WordItemDao.Properties.Pid.eq("" + wordTitle.getId())).orderAsc(WordItemDao.Properties.Sortline).list();
+
+                                    for (WordItem item : list
+                                            ) {
+                                        UDPInfo info = new UDPInfo();
+                                        info.setWordTitle(wordTitle);
+                                        info.setWordItem(item);
+                                        info.type = "getAllTitleWordItemRes";
+                                        udpSend(info, packet.getAddress(), packet.getPort());
+                                    }
+                                }
                             }
+                        }
+                        if (udpInfo.type.compareToIgnoreCase("addWordItemReq") == 0) {
+                            WordItem wordItem = insert(udpInfo);
+                            UDPInfo info = new UDPInfo();
+                            info.type = "addWordItemRes";
+                            if(wordItem!=null)
+                                info.setWordItem(wordItem);
+                            udpSend(info, packet.getAddress(), packet.getPort());
                         }
                     }
                 } catch (Exception e) {

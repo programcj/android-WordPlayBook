@@ -35,6 +35,7 @@ import android.widget.Toast;
 import com.cj.db.greendao.WordItemDao;
 import com.cjenglish.db.WordItem;
 import com.cjenglish.db.WordTitle;
+import com.cjenglish.service.WordPlayService;
 
 import java.util.Collections;
 import java.util.List;
@@ -251,7 +252,6 @@ public class WordListActivity extends AppCompatActivity {
         public int getItemCount() {
             return listWords.size();
         }
-
 
 
         public WordItem getItem(int position) {
@@ -538,14 +538,30 @@ public class WordListActivity extends AppCompatActivity {
             break;
             case R.id.action_auto_play:
                 //自动朗读
+
+                if (WordPlayService.isRunning()) {
+                    WordPlayService.buildThisStopPlay(this);
+                    Toast.makeText(getThisContext(), "stop play..", Toast.LENGTH_SHORT).show();
+                } else {
+                    WordPlayService.buildThisPlayTitle(this, wordTitle.getName(), playIndex);
+                    Toast.makeText(getThisContext(), "start play..", Toast.LENGTH_SHORT).show();
+                }
+/*
                 if (timerIsRun) {
                     timerIsRun = false;
-                    timer.cancel();
+                    if(timer!=null)
+                        timer.cancel();
                     timer = null;
+
+                    WordPlayService.buildThisStopPlay(this);
+
                     Toast.makeText(getThisContext(), "stop play..", Toast.LENGTH_SHORT).show();
                 } else {
                     timerIsRun = true;
+                    WordPlayService.buildThisPlayTitle(this, wordTitle.getName(), playIndex);
+
                     timer = new Timer();
+
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
@@ -553,14 +569,15 @@ public class WordListActivity extends AppCompatActivity {
                             handler.sendMessageAtTime(message, 0);
                         }
                     }, 0, 1500);
+
                     Toast.makeText(getThisContext(), "start play..", Toast.LENGTH_SHORT).show();
                 }
-
+*/
                 break;
             case R.id.action_refurbish: {
                 List<WordItem> listWords = WordListActivity.WordItemGetAll(wordTitle);
                 if (adapterViewGrid != null) {
-                    adapterViewGrid.listWords=listWords;
+                    adapterViewGrid.listWords = listWords;
                     adapterViewGrid.notifyDataSetChanged();
                 }
             }
@@ -584,6 +601,8 @@ public class WordListActivity extends AppCompatActivity {
         if (timer != null)
             timer.cancel();
         timer = null;
+
+        //WordPlayService.buildThisStopPlay(this);
     }
 
 
